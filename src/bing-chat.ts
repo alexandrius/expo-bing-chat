@@ -1,9 +1,6 @@
-import crypto from 'node:crypto'
-
-import WebSocket from 'ws'
+import * as Crypto from 'expo-crypto'
 
 import * as types from './types'
-import { fetch } from './fetch'
 
 const terminalChar = ''
 
@@ -68,7 +65,7 @@ export class BingChat {
 
     const result: types.ChatMessage = {
       author: 'bot',
-      id: crypto.randomUUID(),
+      id: Crypto.randomUUID(),
       conversationId,
       clientId,
       conversationSignature,
@@ -132,7 +129,7 @@ export class BingChat {
           if (stage === 0) {
             ws.send(`{"type":6}${terminalChar}`)
 
-            const traceId = crypto.randomBytes(16).toString('hex')
+            const traceId = Crypto.getRandomBytes(16).toString('hex')
 
             // example location: 'lat:47.639557;long:-122.128159;re=1000m;'
             const locationStr = location
@@ -257,7 +254,7 @@ export class BingChat {
   }
 
   async createConversation(): Promise<types.ConversationResult> {
-    const requestId = crypto.randomUUID()
+    const requestId = Crypto.randomUUID()
 
     const cookie = this._cookie.includes(';')
       ? this._cookie
