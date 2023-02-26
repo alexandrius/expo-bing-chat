@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as Crypto from 'expo-crypto'
 
 import * as types from './types'
