@@ -5,6 +5,12 @@ import * as types from './types'
 
 const terminalChar = ''
 
+function toHexString(byteArray: Uint8Array) {
+  return Array.from(byteArray, function (byte) {
+    return ('0' + (byte & 0xff).toString(16)).slice(-2)
+  }).join('')
+}
+
 export class BingChat {
   protected _cookie: string
   protected _debug: boolean
@@ -90,10 +96,11 @@ export class BingChat {
 
         function cleanup() {
           ws.close()
-          ws.removeAllListeners()
+          //TODO:
+          // ws.removeAllListeners()
         }
 
-        ws.on('error', (error) => {
+        ws.onerror((error) => {
           console.warn('WebSocket error:', error)
           cleanup()
           if (!isFulfilled) {
@@ -101,16 +108,16 @@ export class BingChat {
             reject(new Error(`WebSocket error: ${error.toString()}`))
           }
         })
-        ws.on('close', () => {
+        ws.onclose(() => {
           // TODO
         })
 
-        ws.on('open', () => {
+        ws.onopen(() => {
           ws.send(`{"protocol":"json","version":1}${terminalChar}`)
         })
         let stage = 0
 
-        ws.on('message', (data) => {
+        ws.onmessage((data) => {
           const objects = data.toString().split(terminalChar)
 
           const messages = objects
@@ -130,7 +137,7 @@ export class BingChat {
           if (stage === 0) {
             ws.send(`{"type":6}${terminalChar}`)
 
-            const traceId = Crypto.getRandomBytes(16).toString('hex')
+            const traceId = toHexString(Crypto.getRandomBytes(16))
 
             // example location: 'lat:47.639557;long:-122.128159;re=1000m;'
             const locationStr = location
