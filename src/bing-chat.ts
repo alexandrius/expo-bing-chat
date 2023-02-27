@@ -1,4 +1,3 @@
-// @ts-nocheck
 import * as Crypto from 'expo-crypto'
 
 import * as types from './types'
@@ -83,45 +82,40 @@ export class BingChat {
     const responseP = new Promise<types.ChatMessage>(
       async (resolve, reject) => {
         const chatWebsocketUrl = 'wss://sydney.bing.com/sydney/ChatHub'
-        const ws = new WebSocket(chatWebsocketUrl, {
-          perMessageDeflate: false,
-          headers: {
-            'accept-language': 'en-US,en;q=0.9',
-            'cache-control': 'no-cache',
-            pragma: 'no-cache'
-          }
-        })
+        const ws = new WebSocket(chatWebsocketUrl)
 
         let isFulfilled = false
 
         function cleanup() {
           ws.close()
-          //TODO:
-          // ws.removeAllListeners()
+          ws.onerror = null
+          ws.onopen = null
+          ws.onmessage = null
+          ws.onopen = null
         }
 
-        ws.onerror((error) => {
-          console.warn('WebSocket error:', error)
+        ws.onerror = (e) => {
+          console.warn('WebSocket error:', e)
           cleanup()
           if (!isFulfilled) {
             isFulfilled = true
-            reject(new Error(`WebSocket error: ${error.toString()}`))
+            reject(new Error(`WebSocket error: ${e}`))
           }
-        })
-        ws.onclose(() => {
-          // TODO
-        })
+        }
+        ws.onclose = (e) => {
+          console.log('WebSocket onclose', e)
+        }
 
-        ws.onopen(() => {
+        ws.onopen = () => {
           ws.send(`{"protocol":"json","version":1}${terminalChar}`)
-        })
+        }
         let stage = 0
 
-        ws.onmessage((data) => {
-          const objects = data.toString().split(terminalChar)
+        ws.onmessage = (e) => {
+          const objects = e.data.toString().split(terminalChar)
 
           const messages = objects
-            .map((object) => {
+            .map((object: any) => {
               try {
                 return JSON.parse(object)
               } catch (error) {
@@ -205,11 +199,11 @@ export class BingChat {
 
             if (message.type === 1) {
               const update = message as types.ChatUpdate
-              const msg = update.arguments[0].messages[0]
+              const msg = update.arguments[0]?.messages[0]
 
               // console.log('RESPONSE0', JSON.stringify(update, null, 2))
 
-              if (!msg.messageType) {
+              if (msg && !msg.messageType) {
                 result.author = msg.author
                 result.text = msg.text
                 result.detail = msg
@@ -254,7 +248,7 @@ export class BingChat {
               // console.warn('unexpected message type', message.type, message)
             }
           }
-        })
+        }
       }
     )
 

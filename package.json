@@ -1,6 +1,6 @@
 {
   "name": "expo-bing-chat",
-  "version": "0.2.3",
+  "version": "0.2.7",
   "description": "Expo client for the unofficial Bing Chat API.",
   "author": "Alexander Pataridze <s.pataridze@gmail.com>",
   "repository": "alexandrius/expo-bing-chat",

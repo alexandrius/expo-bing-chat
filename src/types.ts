@@ -22,9 +22,9 @@ export interface ChatMessage {
   text: string
   author: Author
 
-  conversationId: string
-  clientId: string
-  conversationSignature: string
+  conversationId?: string
+  clientId?: string
+  conversationSignature?: string
   conversationExpiryTime?: string
   invocationId?: string
 
